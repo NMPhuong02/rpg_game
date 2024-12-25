@@ -112,6 +112,7 @@ public class TilesManager {
                 worldRow++;
             }
         }
+        
         if(drawPath == true) {
             g2.setColor(new Color(255,0,0,70));
 

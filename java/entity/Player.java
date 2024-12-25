@@ -1,19 +1,12 @@
 package entity;
 
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import rpg_sequel.KeyHandler;
 import rpg_sequel.GamePanel;
 
 public class Player extends Entity {
 
     KeyHandler keyH;
-    public final int screenX;
-    public final int screenY;
-    public int hasKey = 0;
-    public int standCounter = 0;
-    boolean moving = false;
-    int pixelCounter = 0;
 
     public Player(GamePanel gp, KeyHandler keyH) {
 
@@ -22,6 +15,9 @@ public class Player extends Entity {
 
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
         screenY = gp.screenHeight/2 - (gp.tileSize/2);
+
+        solidAreaDefaultX = solidArea.x;
+        solidAreaDefaultY = solidArea.y;
 
         setDefaultValue();
         getPlayerImage();
@@ -56,7 +52,7 @@ public class Player extends Entity {
         if (moving == false) {
 
             if(keyH.upPressed == true || keyH.downPressed == true || 
-            keyH.leftPressed == true || keyH.rightPressed == true) {
+                keyH.leftPressed == true || keyH.rightPressed == true) {
             
                 if(keyH.upPressed == true) {
                     direction = "up";
@@ -70,22 +66,18 @@ public class Player extends Entity {
                 if (keyH.rightPressed == true) {
                     direction = "right";
                 }
-                if (keyH.run == true) {
-                    speed = 4;
-                }
-                else if (keyH.run == false) {
-                    speed = 4;
-                }
 
                 moving = true;
                 
-                //Check tiles collision
-                collisionOn = false;
-                gp.cCheck.checkTile(this);
+                checkCollision();
                 
                 //Check object collision
-                int  ObjIndex = gp.cCheck.checkObject(this, true);
+                int ObjIndex = gp.cCheck.checkObject(this, true);
                 touchTheForbiddenPear(ObjIndex);
+
+                //Check npc collision
+                int npcIndex = gp.cCheck.checkEntity(this, gp.npc);
+                interactNPC(npcIndex);
             }
             else {
 
@@ -98,42 +90,13 @@ public class Player extends Entity {
                 }
             }
         } 
-        else {
-            
-            if(collisionOn == false) {
-                    
-                switch (direction) {
-                    case "up": worldY -= speed; break;
-                    case "down": worldY += speed; break;
-                    case "left": worldX -= speed; break;
-                    case "right": worldX += speed; break;
-                }
-            }
-
-            spritesCounter++;
-            if(spritesCounter > 12) {
-                if(spritesNum == 1) {
-                    spritesNum = 2;
-                }
-                else if(spritesNum == 2) {
-                    spritesNum = 3;
-                }
-                else if(spritesNum == 3) {
-                    spritesNum = 1;
-                }
-                spritesCounter = 0;
-            }
-
-            pixelCounter += speed;
-
-            if (pixelCounter == 48) {
-                moving = false;
-                pixelCounter = 0;
-            }
+        if (moving == true) {
+            movement();
         }  
     }
 
     public void touchTheForbiddenPear(int i) {
+
         if (i != 999) {
 
             String objectName = gp.obj[i].name;
@@ -146,61 +109,15 @@ public class Player extends Entity {
         }
     }
 
+    public void interactNPC(int i) {
+
+        if (i != 999) {
+            System.out.println("Touch");
+        }
+    }
+
     public void draw(Graphics2D g2) {
 
-        BufferedImage image = null;
-        
-        switch (direction) {
-
-            case "up":
-                if(spritesNum == 1) {
-                    image = up0;
-                }
-                if(spritesNum == 2) {
-                    image = up1;
-                }
-                if(spritesNum == 3) {
-                    image = up2;
-                }
-                break;
-            
-            case "down":
-                if(spritesNum == 1) {
-                    image = down0;
-                }
-                if(spritesNum == 2) {
-                    image = down1;
-                }
-                if(spritesNum == 3) {
-                    image = down2;
-                }
-                break;
-            
-            case "left":
-                if(spritesNum == 1) {
-                    image = left0;
-                }
-                if(spritesNum == 2) {
-                    image = left1;
-                }
-                if(spritesNum == 3) {
-                    image = left2;
-                }
-                break;
-            
-            case "right":
-                if(spritesNum == 1) {
-                    image = right0;
-                }
-                if(spritesNum == 2) {
-                    image = right1;
-                }
-                if(spritesNum == 3) {
-                    image = right2;
-                }
-                break;
-        }
-
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        entity_animation(g2);
     }
 }

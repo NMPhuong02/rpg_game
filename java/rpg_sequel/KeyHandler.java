@@ -1,10 +1,19 @@
 package rpg_sequel;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import entity.Entity;
+
 public class KeyHandler implements KeyListener {
 
-    public boolean upPressed, downPressed, leftPressed, rightPressed, run;
+    GamePanel gp;
+    Entity entity;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, path;
+
+    public KeyHandler(GamePanel gp) {
+        this.gp = gp;
+    }
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -27,8 +36,18 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_A) {
             leftPressed = true;
         }
-        if (code == KeyEvent.VK_SHIFT) {
-            run = true;
+        if (code == KeyEvent.VK_ENTER) {
+            int goalCol = 12;
+            int goalRow = 30;
+            entity.searchPath(goalCol, goalRow);
+        }
+        if (code == KeyEvent.VK_ESCAPE) {
+            if (gp.gameState == gp.playState) {
+                gp.gameState = gp.pauseState;
+            }
+            else if (gp.gameState == gp.pauseState) {
+                gp.gameState = gp.playState;
+            }
         }
     }
 
@@ -48,9 +67,6 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_A) {
             leftPressed = false;
-        }
-        if (code == KeyEvent.VK_SHIFT) {
-            run = false;
         }
     }
 }
